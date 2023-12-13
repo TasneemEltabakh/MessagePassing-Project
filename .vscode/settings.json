@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "UPQUEUE.C": "cpp",
+        "diskprocessmodule.h": "c",
+        "string.h": "c",
+        "msg.h": "c"
+    }
+}
