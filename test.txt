@@ -1,4 +1,4 @@
-0 ADD "hello"
+1 ADD "hello"
 5 ADD "hi there"
 8 ADD "good morning"
 10 ADD "how are you?"

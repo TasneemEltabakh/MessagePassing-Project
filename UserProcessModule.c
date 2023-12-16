@@ -15,9 +15,11 @@ struct msgbuff
 // ///////////////////////*                       Functions                  *////////////////////////////
 void waitfortime(int stime)
 {
-    while(1)
+    while (1)
     {
-        if(CLK>=stime)
+        printf("\nclk is%d\n", CLK);
+
+        if (CLK >= stime)
         {
             break;
         }
@@ -37,7 +39,7 @@ void SIGUSR2Handler(int signum)
 
 void readRequestsFromFile(const char *filename)
 {
-    
+
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
@@ -46,69 +48,67 @@ void readRequestsFromFile(const char *filename)
     }
 
     char line[70];
-    while (1)
+    while (fgets(line, sizeof(line), file))
     {
-        fgets(line, sizeof(line), file);
+
         printf("\nThe clock now is: %d\n", CLK);
-        int time=0;
+        int time = 0;
         char operation[10];
         char data[64];
-        
         sscanf(line, "%d %s  %[^\n]", &time, operation, data);
-        waitfortime(time);
-            
-            char request[80];
-            struct msgbuff msg;
-            if (strcmp(operation, "ADD") == 0)
-            {
-                strcpy(msg.mtext, data);
-                msg.rtype = 1;
-                printf("operation: %s\n", operation);
-                printf("text: %s\n", data);
-                printf("rtype: %d\n", msg.rtype);
-            }
-            else if (strcmp(operation, "DEL") == 0)
-            {
-                strcpy(msg.mtext, data);
-                msg.rtype = 2;
-                printf("operation: %s\n", operation);
-                printf("text: %s\n", data);
-            }
-            else
-            {
-                printf("Invalid operation: %s\n", operation);
-                continue;
-            }
+        while (CLK < time)
+        {
+           
+           
+        }
 
-            
-            msg.mtype = pid; 
-            
-            int sentval = msgsnd(UPup_queue, &msg, sizeof(msg.mtext), !IPC_NOWAIT);
-            
-            if (sentval == -1)
-            {
-                perror("Error in sending");
-            }
-            else
-            {
-                printf("\nUser Process sent to Kernel: %s", msg.mtext);
-            }
+        char request[80];
+        struct msgbuff msg;
+        if (strcmp(operation, "ADD") == 0)
+        {
+            strcpy(msg.mtext, data);
+            msg.rtype = 1;
+            printf("operation: %s\n", operation);
+            printf("text: %s\n", data);
+            printf("rtype: %d\n", msg.rtype);
+        }
+        else if (strcmp(operation, "DEL") == 0)
+        {
+            strcpy(msg.mtext, data);
+            msg.rtype = 2;
+            printf("operation: %s\n", operation);
+            printf("text: %s\n", data);
+        }
+        else
+        {
+            printf("Invalid operation: %s\n", operation);
+            continue;
+        }
 
-            
-            struct msgbuff response;
-            int rec = msgrcv(UPdown_queue, &response, sizeof(response.mtext), pid, !IPC_NOWAIT);
-            if (rec == -1)
-            {
-                perror("Error in receiving");
-            }
-            else
-            {
-                printf("\nUser Process received from Kernel: %s", response.mtext);
-            }
-        
-        
+        msg.mtype = pid;
+
+        int sentval = msgsnd(UPup_queue, &msg, sizeof(msg.mtext), !IPC_NOWAIT);
+
+        if (sentval == -1)
+        {
+            perror("Error in sending");
+        }
+        else
+        {
+            printf("\nUser Process sent to Kernel: %s", msg.mtext);
+        }
+
+        struct msgbuff response;
+        int rec = msgrcv(UPdown_queue, &response, sizeof(response.mtext), pid, !IPC_NOWAIT);
+        if (rec == -1)
+        {
+            perror("Error in receiving");
+        }
+        else
+        {
+            printf("\nUser Process received from Kernel: %s", response.mtext);
+        }
     }
-    
 
     fclose(file);
 }
@@ -117,7 +117,7 @@ int main()
 {
     pid = getpid();
     signal(SIGUSR2, SIGUSR2Handler);
-    
+
     key_t id_Up_UP, id_Down_UP;
 
     id_Up_UP = 202101031;
@@ -130,6 +130,6 @@ int main()
     scanf("%255s", filename);
 
     readRequestsFromFile(filename);
-   
+
     return 0;
 }

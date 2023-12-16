@@ -16,6 +16,7 @@ void Kernel(key_t diskup, key_t diskdown, key_t userup, key_t userdown)
     int usersend;
     int diskrec;
     int userec;
+    int direc;
     char msg[] = "";
     struct msgbuff diskmsg;
     struct msgbuff usermsg;
@@ -25,8 +26,9 @@ void Kernel(key_t diskup, key_t diskdown, key_t userup, key_t userdown)
     {
         sendignal2ToUser();
         sendignal2ToDisk();
-        
-        userec = msgrcv(userup, &usermsg, sizeof(usermsg.mtext), 0, !IPC_NOWAIT);
+        sendignal1ToDisk();
+
+        userec = msgrcv(userup, &usermsg, sizeof(usermsg.mtext), 0, IPC_NOWAIT);
         if (userec == -1)
         {
             perror("Error in recieving");
@@ -35,31 +37,11 @@ void Kernel(key_t diskup, key_t diskdown, key_t userup, key_t userdown)
         {
             printf("\nKernel recieved from User: %s\n", usermsg.mtext);
         }
-        if (usermsg.rtype == 1)
+        direc = msgrcv(diskup, &slot, sizeof(slot.mtext), 0, IPC_NOWAIT);
+            
+        if (userec != -1)
         {
-            sendignal1ToDisk();
-            userec = msgrcv(diskup, &slot, sizeof(slot.mtext), 0, !IPC_NOWAIT);
-            int int_value = atoi(slot.mtext);
-            if (int_value != 0)
-            {
-                disend = msgsnd(diskdown, &usermsg, sizeof(usermsg.mtext), !IPC_NOWAIT);
-                if (disend == -1)
-                {
-                    perror("Error in sending");
-                }
-                else
-                {
-                    printf("\nKernel sent to disk: %s\n", usermsg.mtext);
-                }
-            }
-            else
-            {
-                  printf("\nThere is no slots here\n");
-            }
-        }
-        else
-        {
-            disend = msgsnd(diskdown, &usermsg, sizeof(usermsg.mtext), !IPC_NOWAIT);
+            disend = msgsnd(diskdown, &usermsg, sizeof(usermsg.mtext), IPC_NOWAIT);
             if (disend == -1)
             {
                 perror("Error in sending");
@@ -69,8 +51,10 @@ void Kernel(key_t diskup, key_t diskdown, key_t userup, key_t userdown)
                 printf("\nKernel sent to disk: %s\n", usermsg.mtext);
             }
         }
+           
+        
 
-        diskrec = msgrcv(diskup, &diskmsg, sizeof(diskmsg.mtext), 0, !IPC_NOWAIT);
+        diskrec = msgrcv(diskup, &diskmsg, sizeof(diskmsg.mtext), 0, IPC_NOWAIT);
         if (diskrec == -1)
         {
             perror("Error in recieving");
@@ -80,7 +64,7 @@ void Kernel(key_t diskup, key_t diskdown, key_t userup, key_t userdown)
             printf("\nKernel recieved from Disk: %s\n", diskmsg.mtext);
         }
 
-        usersend = msgsnd(userdown, &diskmsg, sizeof(diskmsg.mtext), !IPC_NOWAIT);
+        usersend = msgsnd(userdown, &diskmsg, sizeof(diskmsg.mtext), IPC_NOWAIT);
         if (usersend == -1)
         {
             perror("Error in sending");

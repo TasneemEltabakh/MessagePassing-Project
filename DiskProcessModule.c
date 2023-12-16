@@ -53,12 +53,22 @@ void Disk(key_t up, key_t down)
         }
         if(diskmsg.rtype==1 || diskmsg.mtext[0] !='\0')
         {
-            checkvalue= addDataToDisk(diskmsg.mtext);
+            if(rec !=-1)
+            {
+                checkvalue= addDataToDisk(diskmsg.mtext);
+            }
+            
         }
         else if(diskmsg.rtype==2)
         {
+            if(rec !=-1)
+            {
+
             checkvalue= deleteDataFromDisk(diskmsg.mtext);
 
+
+            }
+            
         }
         diskmsgsent.rtype=1; //stands for success or fail
         diskmsgsent.mtype= pid;
