@@ -3,6 +3,8 @@
         "UPQUEUE.C": "cpp",
         "diskprocessmodule.h": "c",
         "string.h": "c",
-        "msg.h": "c"
+        "msg.h": "c",
+        "initqueues.h": "c",
+        "ipc.h": "c"
     }
 }

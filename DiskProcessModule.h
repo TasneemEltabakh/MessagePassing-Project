@@ -1,5 +1,12 @@
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <sys/types.h>
 #include <signal.h>
+#include <unistd.h>
 #ifndef DISKPROCESS_H
 #define DISKPROCESS_H
 
@@ -11,27 +18,16 @@
 //the 10 diskslots (pointer to them)
 
 //adding and deleting data
-void addDataToDisk(const char* data);
-void deleteDataFromDisk(int slotIndex);
-
-//just to be busy while deleting or adding
-void RunningNow();
-
-
-//bools sent to kernel to tell it whether the order succeed or failed
-void FailOrSuccessAdd();
-void FailOrSuccessDelete();
+int addDataToDisk(const char* data);
+int deleteDataFromDisk(char * slot);
+void initializeslots();
 
 
 //it is sent to the kernel to tell it how many slots available
 int getStatus();
-void RunDisk();
 
-//signal2 handler
 void SIGUSR2Handler(int signum);
 void SIGUSR1Handler(int signum);
 
-int send_message_ToKernel(int msgqid, long mtype, const char* message);
-long receive_message_fromKernel(int msgqid, long mtype, char* buffer, size_t buffer_size);
-void sendTestMessageToDiskDownQueue() ;
+void Disk(key_t up, key_t down);
 #endif
