@@ -1,0 +1,6 @@
+0 ADD "hello2"
+4 ADD "hi2"
+10 ADD "how are you?2"
+10 DEL "3"
+12 DEL "1"
+13 ADD "yup2"

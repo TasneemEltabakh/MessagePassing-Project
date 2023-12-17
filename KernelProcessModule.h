@@ -19,3 +19,6 @@ void clkhandler();
 void sendignal1ToDisk();
 void sendignal2ToDisk();
 void sendignal2ToUser();
+void clkupdate();
+void SIGUSR2Handler(int signum);
+void sendignal2ToMe();

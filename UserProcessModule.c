@@ -67,15 +67,15 @@ void readRequestsFromFile(const char *filename)
         if (strcmp(operation, "ADD") == 0)
         {
             strcpy(msg.mtext, data);
-            msg.rtype = 1;
+            msg.mtype = 1;
             printf("operation: %s\n", operation);
             printf("text: %s\n", data);
-            printf("rtype: %d\n", msg.rtype);
+           
         }
         else if (strcmp(operation, "DEL") == 0)
         {
             strcpy(msg.mtext, data);
-            msg.rtype = 2;
+            msg.mtype = 2;
             printf("operation: %s\n", operation);
             printf("text: %s\n", data);
         }
@@ -84,10 +84,9 @@ void readRequestsFromFile(const char *filename)
             printf("Invalid operation: %s\n", operation);
             continue;
         }
-
-        msg.mtype = pid;
-
-        int sentval = msgsnd(UPup_queue, &msg, sizeof(msg.mtext), !IPC_NOWAIT);
+        msg.rtype= getpid();
+         printf("rtype: %d\n", msg.rtype);
+        int sentval = msgsnd(UPup_queue, &msg, sizeof(struct msgbuff), !IPC_NOWAIT);
 
         if (sentval == -1)
         {
@@ -99,7 +98,7 @@ void readRequestsFromFile(const char *filename)
         }
 
         struct msgbuff response;
-        int rec = msgrcv(UPdown_queue, &response, sizeof(response.mtext), pid, !IPC_NOWAIT);
+        int rec = msgrcv(UPdown_queue, &response, sizeof(struct msgbuff), pid, !IPC_NOWAIT);
         if (rec == -1)
         {
             perror("Error in receiving");

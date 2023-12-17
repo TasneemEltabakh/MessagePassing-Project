@@ -1,0 +1,40 @@
+At time = 1, sent status request to Disk
+At time = 1,  Disk status = 10 empty slots
+At time = 1, request to add "hello2" from Process id10178
+At time = 2, sent status request to Disk
+At time = 2,  Disk status = 10 empty slots
+At time = 2, request to add "hello" from Process id9993
+At time = 3, sent status request to Disk
+At time = 3,  Disk status = 10 empty slots
+At time = 3, request to add "hi" from Process id9993
+At time = 4, send success  add to id 9993
+At time = 7, sent status request to Disk
+At time = 7,  Disk status = 8 empty slots
+At time = 7, request to add "how are you?" from Process id9993
+At time = 7, send success  add to id 9993
+At time = 10, request to delete "1" from Process id9993
+At time = 10, send success  add to id 9993
+At time = 12, request to delete "2" from Process id9993
+At time = 13, sent status request to Disk
+At time = 13,  Disk status = 6 empty slots
+At time = 13, request to add "yup" from Process id9993
+At time = 13, send success  add to id 9993
+At time = 14, send success delete to id 9993
+At time = 15, send success delete to id 9993
+At time = 18, sent status request to Disk
+At time = 18,  Disk status = 7 empty slots
+At time = 18, request to add "hi2" from Process id10178
+At time = 18, send success  add to id 10178
+At time = 21, send success  add to id 10178
+At time = 24, sent status request to Disk
+At time = 24,  Disk status = 6 empty slots
+At time = 24, request to add "how are you?2" from Process id10178
+At time = 25, request to delete "3" from Process id10178
+At time = 26, request to delete "1" from Process id10178
+At time = 27, sent status request to Disk
+At time = 27,  Disk status = 5 empty slots
+At time = 27, request to add "yup2" from Process id10178
+At time = 27, send success  add to id 10178
+At time = 28, send success delete to id 10178
+At time = 29, send success delete to id 10178
+At time = 32, send success  add to id 10178

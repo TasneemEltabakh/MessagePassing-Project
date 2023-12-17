@@ -7,7 +7,6 @@ int Diskdown_queue;
 int Diskup_queue;
 int pid;
 char diskSlots[10][64];
-
 struct msgbuff
 {
     long mtype;
@@ -30,19 +29,21 @@ void initializeslots()
 
 void Disk(key_t up, key_t down)
 {
-    int checkvalue;
+    int checkvalue= -1;
     int rec;
     int sent;
     char msg[] = "";
     struct msgbuff diskmsg;
     struct msgbuff diskmsgsent;
-   
     char str_value[20];
     
-    printf("\nThe clock now is: %d\n", CLK);
+   
     while (1)
     {
-        rec= msgrcv(down, &diskmsg, sizeof(diskmsg.mtext), 0, !IPC_NOWAIT);
+        printf("\n");
+        printf("\n");
+        printf("\nThe clock now is: %d\n", CLK);
+        rec= msgrcv(down, &diskmsg, sizeof(struct msgbuff), 0, !IPC_NOWAIT);
         if (rec== -1)
         {
             perror("Error in recieving");
@@ -51,7 +52,7 @@ void Disk(key_t up, key_t down)
         {
             printf("\nDisk recieved from Kernel: %s\n", diskmsg.mtext);
         }
-        if(diskmsg.rtype==1 || diskmsg.mtext[0] !='\0')
+        if(diskmsg.mtype==1 && diskmsg.mtext[0] !='\0')
         {
             if(rec !=-1)
             {
@@ -59,7 +60,7 @@ void Disk(key_t up, key_t down)
             }
             
         }
-        else if(diskmsg.rtype==2)
+        else if(diskmsg.mtype==2)
         {
             if(rec !=-1)
             {
@@ -75,8 +76,11 @@ void Disk(key_t up, key_t down)
         char checkvalue_str[64];
         sprintf(checkvalue_str, "%d", checkvalue);
         strcpy(diskmsgsent.mtext, checkvalue_str);
-   
-        sent= msgsnd(up, &diskmsgsent, sizeof(diskmsgsent.mtext),!IPC_NOWAIT );
+         
+       if(checkvalue !=-1 && rec !=-1)
+       {
+        printf("\nthe check value is: %s\n",checkvalue_str);
+        sent= msgsnd(up, &diskmsgsent, sizeof(struct msgbuff),!IPC_NOWAIT );
         if (sent== -1)
         {
             perror("Error in sent");
@@ -86,12 +90,19 @@ void Disk(key_t up, key_t down)
             printf("\nDisk sent to Kernel: %s\n", diskmsgsent.mtext);
         }
 
+
+       }
+        
         printf("\nEmpty slots: %d\n", getStatus());
         for (int i = 0; i < 10; i++)
         {
             printf("\nslot's %d data: %s\n", i+1, diskSlots[i]);
         }
+        
+        
     }
+        
+
     
     
 }
@@ -124,8 +135,14 @@ void main()
 
 int addDataToDisk(const char *data)
 {
+    int oldclk=CLK;
+    int timer=0;
     int emppty = -1;
-
+    int diff= CLK-oldclk;
+    while(diff<3)
+    {
+        diff=CLK-oldclk;
+    }
     for (int i = 0; i < 10; i++)
     {
         if (diskSlots[i][0] == '\0')
@@ -139,7 +156,8 @@ int addDataToDisk(const char *data)
 
         diskSlots[emppty][j] = data[j];
     }
-    sleep(3);
+    timer=0;
+  
     if(emppty==-1)
     {
         return 2;
@@ -151,26 +169,43 @@ int addDataToDisk(const char *data)
 }
 int deleteDataFromDisk(char *slot)
 {
-    int slotIndex = slot[0] - '0';
+    // Remove quotation marks from the slot string
+    char *cleanedSlot = strtok(slot, "\"");
+
+    int oldclk = CLK;
+    int timer = 0;
+    int emppty = -1;
+    int diff = CLK - oldclk;
+
+    // Convert cleanedSlot to an integer
+    int slotIndex = atoi(cleanedSlot);
+
+    while (diff < 1)
+    {
+        diff = CLK - oldclk;
+    }
+
+    timer = 0;
+
     if (slotIndex >= 0 && slotIndex < MAX_DISK_SLOTS)
     {
         if (diskSlots[slotIndex][0] != '\0')
         {
             for (int j = 0; j < 64; j++)
             {
-                diskSlots[0][j] = '\0';
+                diskSlots[slotIndex][j] = '\0';
             }
-            sleep(1);
-            return 1;
+
+            return 1; // Successful deletion
         }
         else
         {
-            return 3;
+            return 3; // Empty slot
         }
     }
     else
     {
-        return 3;
+        return 3; // Invalid slot index
     }
 }
 
@@ -199,10 +234,10 @@ void SIGUSR1Handler(int signum)
     struct msgbuff msg;
     printf("\n  SIGUSR1 SENT \n");
     int available_slots = getStatus();
-    msg.mtype= pid;
+    msg.mtype= 2;
     msg.rtype= 2; //stands for status
     sprintf(msg.mtext, "%d", available_slots);
-    sentval= msgsnd(Diskup_queue, &msg, sizeof(msg.mtext),!IPC_NOWAIT );
+    sentval= msgsnd(Diskup_queue, &msg, sizeof(struct msgbuff),!IPC_NOWAIT );
     if (sentval== -1)
     {
         perror("Error in sending");
